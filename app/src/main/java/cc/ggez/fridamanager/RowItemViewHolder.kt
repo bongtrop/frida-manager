@@ -2,9 +2,9 @@ package cc.ggez.fridamanager
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.view.ViewParent
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import cc.ggez.fridamanager.databinding.RowItemBinding
+import cc.ggez.fridamanager.model.RowItem
 
 class RowItemViewHolder(
     private val itemBinding: RowItemBinding

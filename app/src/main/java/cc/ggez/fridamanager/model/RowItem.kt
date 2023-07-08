@@ -1,4 +1,4 @@
-package cc.ggez.fridamanager
+package cc.ggez.fridamanager.model
 
 data class RowItem(
     val title: String,

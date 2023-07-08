@@ -2,10 +2,19 @@ package cc.ggez.fridamanager
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import cc.ggez.fridamanager.databinding.ActivityMainBinding
+import cc.ggez.fridamanager.model.GithubRelease
+import cc.ggez.fridamanager.model.GithubTag
+import cc.ggez.fridamanager.model.RowItem
+import cc.ggez.fridamanager.util.GithubHelper
+import cc.ggez.fridamanager.util.GithubHelper.Companion.fetchFridaRelease
+import cc.ggez.fridamanager.util.GithubHelper.Companion.fetchFridaTags
+import cc.ggez.fridamanager.util.FridaHelper.Companion.getDownloadUrl
+import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
-
+    val TAG = "MainActivity"
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,6 +24,25 @@ class MainActivity : AppCompatActivity() {
         )
         setContentView(binding.root)
 
+        fetchFridaTags(object : GithubHelper.GithubTagsCallback {
+            override fun onSuccess(tags: List<GithubTag>) {
+                Log.d(TAG, "onSuccess: $tags")
+            }
+
+            override fun onFailure(e: IOException) {
+                println(e)
+            }
+        })
+
+        fetchFridaRelease("16.1.1", object : GithubHelper.GithubReleaseCallback {
+            override fun onSuccess(release: GithubRelease) {
+                Log.d(TAG, getDownloadUrl(release))
+            }
+
+            override fun onFailure(e: IOException) {
+                println(e)
+            }
+        })
 
         val items = mutableListOf(
             RowItem(

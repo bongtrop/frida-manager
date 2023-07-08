@@ -2,6 +2,7 @@ package cc.ggez.fridamanager
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import cc.ggez.fridamanager.model.RowItem
 
 class RvAdapter: RecyclerView.Adapter<RowItemViewHolder>() {
 
