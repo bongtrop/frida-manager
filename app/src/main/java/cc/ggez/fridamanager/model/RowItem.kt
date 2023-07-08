@@ -1,9 +1,9 @@
 package cc.ggez.fridamanager.model
 
+enum class RowItemState(s: Int) {
+    NOT_INSTALL(0), INSTALLING(1), INSTALLED(2), EXECUTING(3)
+}
 data class RowItem(
-    val title: String,
-    val subtitle: String,
-    val url: String,
-    val isPlaying: Boolean = false,
-    val isDownloaded: Boolean = false,
+    val tag: GithubTag,
+    var state: RowItemState = RowItemState.NOT_INSTALL,
 )

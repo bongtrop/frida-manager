@@ -28,6 +28,7 @@ class GithubHelper {
         fun onFailure(e: IOException)
     }
     companion object {
+
         val TAG = "FridaGithubHelper"
         val fridaGithubEndpoint = "https://api.github.com/repos"
 
@@ -36,11 +37,12 @@ class GithubHelper {
             .readTimeout(10, TimeUnit.SECONDS)
             .build()
 
-        fun fetchFridaTags(owner: String, repo: String, callback: GithubTagsCallback) {
+        fun fetchFridaTags(owner: String, repo: String, page: Int, callback: GithubTagsCallback) {
             val urlBuilder: HttpUrl.Builder =
                 ("$fridaGithubEndpoint/$owner/$repo/tags").toHttpUrlOrNull()!!.newBuilder()
 
             urlBuilder.addQueryParameter("per_page", "100")
+            urlBuilder.addQueryParameter("page", page.toString())
             val url = urlBuilder.build().toString()
 
             val request: Request = Request.Builder()

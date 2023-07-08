@@ -8,13 +8,26 @@ class RvAdapter: RecyclerView.Adapter<RowItemViewHolder>() {
 
     val items = mutableListOf<RowItem>()
 
-    var onPlayPauseClick: (RowItem) -> Unit = {}
-    var onDownloadClick: (RowItem) -> Unit = {}
+    var onPowerClick: (position: Int, rowItem: RowItem) -> Unit = { position: Int, rowItem: RowItem -> }
+    var onDeleteClick: (position: Int, rowItem: RowItem) -> Unit = { position: Int, rowItem: RowItem -> }
+    var onContainerClick: (position: Int, rowItem: RowItem) -> Unit = { position: Int, rowItem: RowItem -> }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RowItemViewHolder {
         return RowItemViewHolder.create(
             parent
         )
+    }
+
+    fun notifyChange() {
+        items.sortWith { item1, item2 ->
+            if (item1.state == item2.state) {
+                item2.tag.name.compareTo(item1.tag.name)
+            }
+            else {
+                item2.state.compareTo(item1.state)
+            }
+        }
+        notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {
@@ -23,9 +36,11 @@ class RvAdapter: RecyclerView.Adapter<RowItemViewHolder>() {
 
     override fun onBindViewHolder(holder: RowItemViewHolder, position: Int) {
         holder.bind(
+            position,
             items[position],
-            onPlayPauseClick = onPlayPauseClick,
-            onDownloadClick = onDownloadClick
+            onPowerClick = onPowerClick,
+            onDeleteClick = onDeleteClick,
+            onContainerClick = onContainerClick
         )
     }
 }

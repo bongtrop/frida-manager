@@ -1,21 +1,20 @@
 package cc.ggez.fridamanager
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import cc.ggez.fridamanager.databinding.ActivityMainBinding
-import cc.ggez.fridamanager.model.GithubRelease
 import cc.ggez.fridamanager.model.GithubTag
 import cc.ggez.fridamanager.model.RowItem
+import cc.ggez.fridamanager.model.RowItemState
 import cc.ggez.fridamanager.util.GithubHelper
-import cc.ggez.fridamanager.util.GithubHelper.Companion.fetchFridaRelease
 import cc.ggez.fridamanager.util.GithubHelper.Companion.fetchFridaTags
-import cc.ggez.fridamanager.util.FridaHelper.Companion.getDownloadUrl
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
     val TAG = "MainActivity"
     private lateinit var binding: ActivityMainBinding
+    val rvAdapter = RvAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,59 +23,54 @@ class MainActivity : AppCompatActivity() {
         )
         setContentView(binding.root)
 
-        fetchFridaTags(object : GithubHelper.GithubTagsCallback {
-            override fun onSuccess(tags: List<GithubTag>) {
-                Log.d(TAG, "onSuccess: $tags")
+        rvAdapter.onPowerClick = { position, item ->
+            if (item.state == RowItemState.INSTALLED) {
+                item.state = RowItemState.EXECUTING
+            } else {
+                item.state = RowItemState.INSTALLED
             }
-
-            override fun onFailure(e: IOException) {
-                println(e)
-            }
-        })
-
-        fetchFridaRelease("16.1.1", object : GithubHelper.GithubReleaseCallback {
-            override fun onSuccess(release: GithubRelease) {
-                Log.d(TAG, getDownloadUrl(release))
-            }
-
-            override fun onFailure(e: IOException) {
-                println(e)
-            }
-        })
-
-        val items = mutableListOf(
-            RowItem(
-                title = "Title 1",
-                subtitle = "Subtitle 1",
-                url = "https://www.google.com",
-                isPlaying = false,
-                isDownloaded = false,
-            ),
-            RowItem(
-                title = "Title 2",
-                subtitle = "Subtitle 2",
-                url = "https://www.google.com",
-                isPlaying = false,
-                isDownloaded = false,
-            ),
-            RowItem(
-                title = "Title 3",
-                subtitle = "Subtitle 3",
-                url = "https://www.google.com",
-                isPlaying = false,
-                isDownloaded = false,
-            ),
-        )
-
-        val rvAdapter = RvAdapter()
-        rvAdapter.items.addAll(items)
-        rvAdapter.onPlayPauseClick = { item ->
+            rvAdapter.notifyChange()
 
         }
-        rvAdapter.onDownloadClick = { item ->
-
+        rvAdapter.onDeleteClick = { position, item ->
+            item.state = RowItemState.NOT_INSTALL
+            rvAdapter.notifyChange()
         }
+        rvAdapter.onContainerClick = { position, item ->
+            if (item.state == RowItemState.NOT_INSTALL) {
+                item.state = RowItemState.INSTALLED
+                rvAdapter.notifyChange()
+            }
+        }
+
         binding.recyclerView.adapter = rvAdapter
 
+        binding.swipeContainer.setOnRefreshListener {
+            fetchGithubTagsAsync(1)
+        }
+
+        fetchGithubTagsAsync(1)
     }
+
+    fun fetchGithubTagsAsync(page: Int) {
+        binding.swipeContainer.isRefreshing = true
+        fetchFridaTags("frida", "frida", page, object: GithubHelper.GithubTagsCallback {
+            override fun onSuccess(tags: List<GithubTag>) {
+                Log.d(TAG, tags.toString())
+                runOnUiThread {
+                    rvAdapter.items.addAll(tags.map { RowItem(it) })
+                    rvAdapter.notifyDataSetChanged()
+                }
+
+                binding.swipeContainer.isRefreshing = false
+            }
+
+            override fun onFailure(e: IOException) {
+                Log.e(TAG, "Fetch Github Tag Error: ${e.message}")
+
+                binding.swipeContainer.isRefreshing = false
+            }
+        })
+    }
+
 }
