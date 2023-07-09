@@ -9,9 +9,8 @@ class RvAdapter: RecyclerView.Adapter<RowItemViewHolder>() {
     val items = mutableListOf<RowItem>()
 
     var onPowerClick: (position: Int, rowItem: RowItem) -> Unit = { position: Int, rowItem: RowItem -> }
-    var onDeleteClick: (position: Int, rowItem: RowItem) -> Unit = { position: Int, rowItem: RowItem -> }
     var onContainerClick: (position: Int, rowItem: RowItem) -> Unit = { position: Int, rowItem: RowItem -> }
-
+    var onContainerLongClick: (position: Int, rowItem: RowItem) -> Boolean = { position: Int, rowItem: RowItem -> false }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RowItemViewHolder {
         return RowItemViewHolder.create(
             parent
@@ -39,8 +38,8 @@ class RvAdapter: RecyclerView.Adapter<RowItemViewHolder>() {
             position,
             items[position],
             onPowerClick = onPowerClick,
-            onDeleteClick = onDeleteClick,
-            onContainerClick = onContainerClick
+            onContainerClick = onContainerClick,
+            onContainerLongClick = onContainerLongClick
         )
     }
 }

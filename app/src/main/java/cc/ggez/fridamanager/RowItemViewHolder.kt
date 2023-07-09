@@ -30,8 +30,8 @@ class RowItemViewHolder(
         position: Int,
         item: RowItem,
         onPowerClick: (Int, RowItem) -> Unit,
-        onDeleteClick: (Int, RowItem) -> Unit,
         onContainerClick: (Int, RowItem) -> Unit,
+        onContainerLongClick: (Int, RowItem) -> Boolean
     ) {
         itemBinding.apply {
             tvTitle.text = "Frida Server ${item.tag.name}"
@@ -40,49 +40,37 @@ class RowItemViewHolder(
             if (item.state == RowItemState.NOT_INSTALL) {
                 tvConainer.alpha = 0.6f
                 imvPower.visibility = android.view.View.GONE
-                imvDelete.visibility = android.view.View.GONE
                 pbDownloading.visibility = android.view.View.GONE
+                imvActive.visibility = android.view.View.GONE
             }
             else if (item.state == RowItemState.INSTALLING) {
                 tvConainer.alpha = 1.0f
-
                 imvPower.visibility = android.view.View.GONE
-
-                imvDelete.visibility = android.view.View.GONE
-
                 pbDownloading.visibility = android.view.View.VISIBLE
+                imvActive.visibility = android.view.View.GONE
             }
             else if (item.state == RowItemState.INSTALLED) {
                 tvConainer.alpha = 1.0f
-
                 imvPower.visibility = android.view.View.VISIBLE
-                imvPower.alpha = 0.4f
-
-                imvDelete.visibility = android.view.View.VISIBLE
-
                 pbDownloading.visibility = android.view.View.GONE
+                imvActive.visibility = android.view.View.GONE
             }
             else if (item.state == RowItemState.EXECUTING) {
                 tvConainer.alpha = 1.0f
-
                 imvPower.visibility = android.view.View.VISIBLE
-                imvPower.alpha = 1.0f
-
-                imvDelete.visibility = android.view.View.GONE
-
                 pbDownloading.visibility = android.view.View.GONE
+                imvActive.visibility = android.view.View.VISIBLE
             }
 
             imvPower.setOnClickListener {
                 onPowerClick.invoke(position, item)
             }
 
-            imvDelete.setOnClickListener {
-                onDeleteClick.invoke(position, item)
-            }
-
             tvConainer.setOnClickListener {
                 onContainerClick.invoke(position, item)
+            }
+            tvConainer.setOnLongClickListener {
+                onContainerLongClick.invoke(position, item)
             }
         }
     }

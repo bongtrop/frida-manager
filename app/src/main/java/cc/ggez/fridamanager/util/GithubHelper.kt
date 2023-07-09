@@ -19,12 +19,12 @@ import java.util.concurrent.TimeUnit
 
 class GithubHelper {
     interface GithubTagsCallback {
-        fun onSuccess(tags: List<GithubTag>)
+        fun onSuccess(tags: List<GithubTag>, resJson: String)
         fun onFailure(e: IOException)
     }
 
     interface GithubReleaseCallback {
-        fun onSuccess(release: GithubRelease)
+        fun onSuccess(release: GithubRelease, resJson: String)
         fun onFailure(e: IOException)
     }
     companion object {
@@ -58,10 +58,8 @@ class GithubHelper {
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    val gson = Gson()
-                    val listType: Type = object : TypeToken<ArrayList<GithubTag?>?>() {}.type
-                    val githubTags: List<GithubTag> = gson.fromJson(response.body!!.string(), listType)
-                    callback.onSuccess(githubTags)
+                    val resJson = response.body!!.string()
+                    callback.onSuccess(translateTags(resJson), resJson)
                 }
             })
         }
@@ -85,15 +83,21 @@ class GithubHelper {
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    val gson = Gson()
-                    val githubRelease: GithubRelease = gson.fromJson(response.body!!.string(), GithubRelease::class.java)
-                    callback.onSuccess(githubRelease)
+                    val resJson = response.body!!.string()
+                    callback.onSuccess(translateRelease(resJson), resJson)
                 }
             })
         }
 
+        fun translateTags(resJson: String): List<GithubTag> {
+            val gson = Gson()
+            val listType: Type = object : TypeToken<ArrayList<GithubTag?>?>() {}.type
+            return gson.fromJson(resJson, listType)
+        }
 
+        fun translateRelease(resJson: String): GithubRelease {
+            val gson = Gson()
+            return gson.fromJson(resJson, GithubRelease::class.java)
+        }
     }
-
-
 }
